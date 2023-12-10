@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Students</title>
+<meta charset="utf-8" />
+<script type="text/javascript">
+var name_filter = "";
+var secondname_filter = "";
+var fav_colour_filter = "";
+var age_filter_from = 0;
+var age_filter_to = 30;
+function readServer(url, data, callback) 
+{
+ 	var req = new XMLHttpRequest();
+ 	req.onreadystatechange = function () 
+	{
+ 		if (req.readyState === 4) {//"loaded"
+ 			if (req.status === 200) {//"OK"
+ 				callback(undefined, req.responseText);
+ 			} 
+			else {
+ 				callback(new Error(req.status));
+ 			}
+ 		}
+ 	};
+ 	req.open("POST", url, true);
+ 	req.setRequestHeader('Content-Type', 'application/json');
+ 	req.send(data);
+}
+function update() {
+	var filters = {};
+	filters.name = name_filter;
+	filters.secondname = secondname_filter;
+	filters.fav_colour = fav_colour_filter;
+	filters.age_from = age_filter_from;
+	filters.age_to = age_filter_to;
+	readServer("/get_table", JSON.stringify(filters), function (err, response) {
+		if (err) 
+			document.getElementById("res").innerHTML = err;
+ 		else {
+ 			var temp = "";
+ 			temp = "<table class='table1'>\n";
+ 			temp+="<tr><th>Name" + "<th>Secondname" + "<th>Age" + "<th>Fav_Colour</thead>";
+ 			var rows = JSON.parse(response).table;
+ 			for (var i = 0; i < rows.length; i++) 
+			{
+ 				temp += "<tr><td>" + rows[i].name + "</td><td align=\"center\">" + rows[i].secondname + "</td><td align=\"center\">" + rows[i].age + "</td><td align=\"center\">" + rows[i].fav_colour +"</td></tr>\n";
+ 			} 
+			temp += "</table>";
+ 			document.getElementById("res").innerHTML = temp;
+ 		}
+ 	});
+}
+window.onload = function () {
+ 	var name_input = document.getElementById("name");
+ 	name_input.oninput = function () {
+        name_filter = name_input.value;
+ 		update();
+ 	};
+ 	var secondname_input = document.getElementById("secondname");
+ 	secondname_input.oninput = function () {
+        secondname_filter = secondname_input.value;
+ 		update();
+ 	};
+	var fav_colour_input = document.getElementById("colour");
+    fav_colour_input.oninput = function () {
+ 		fav_colour_filter = fav_colour_input.value;
+ 		update();
+ 	};
+ 	update();
+}
+</script>
+</head>
+<body>
+<div class="container">
+    <div class="inputs">
+        <p>
+            Name<input id="name" type="text"> Secondname<input id="secondname" type="text"> Favorite_colour<input id="colour" type="text">
+        </p>
+    </div>
+</div>
+<p>
+<span id="res" style="font-style: italic"></span>
+</p>
+<style type="text/css">
+.table1 {
+ 	width: 100%;
+ 	border: none;
+ 	margin-bottom: 20px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30vh; 
+}
+
+.inputs {
+  display: flex;
+}
+</style>
+</body>
+</html>
